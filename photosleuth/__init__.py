@@ -1,51 +1,142 @@
-import time
+#!/usr/bin/env python
+"""
+
+PhotoSleuth
+===========
+
+Uses Google with Selenium controlled browsers to perform reverse image search
+and allow users to page through results.
+
+## License
+
+Original is by /u/touste
+http://www.reddit.com/r/ScriptSwap/comments/26bdm8/python_reversesearch_each_image_of_a_website/
+http://www.reddit.com/r/photography/comments/26j0oe/for_the_programming_photographers_python_script/
+
+The MIT License (MIT)
+
+Copyright (c) 2014 /u/touste & Sean Wallitsch
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+"""
+
+# =============================================================================
+# IMPORTS
+# =============================================================================
+
+# Python 3 Compatibility
+from __future__ import print_function
+
+# Standard Imports
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
+from sys import argv
+import time
 from Tkinter import *
 
-#Webpage to parse
-page="http://touste.tumblr.com"
+if sys.version_info[0] >= 3:
+    raw_input = input
 
-#First browser to open and parse webpage
-browser = webdriver.Chrome()#may be changed to use Firefox
-browser.get(page)
-time.sleep(1)
+# =============================================================================
+# GLOBALS
+# =============================================================================
+
+REVERSE_URL = "http://images.google.com/searchbyimage?site=search&image_url="
+
+TEST_PAGE = "http://touste.tumblr.com"
+
+# =============================================================================
+# FUNCTIONS
+# =============================================================================
 
 
-#Scroll until all the images have been found (useful for infinte scroll pages)
-prev_numb = 0
-post_elems = browser.find_elements_by_tag_name("img")
+def _parse_images(browser):
+    """Parses and returns all found images on a webpage"""
 
-while len(post_elems)>prev_numb:
-    prev_numb=len(post_elems)
-    browser.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    time.sleep(0.5)
+    # Scroll until all the images have been found, which is
+    # useful for infinite scroll pages
+    prev_elems = 0
     post_elems = browser.find_elements_by_tag_name("img")
 
-#Second browser to reverse search the images
-browser2 = webdriver.Chrome()#may be changed to use Firefox
+    while len(post_elems) > prev_elems:
+        prev_elems = len(post_elems)
+        browser.execute_script(
+            "window.scrollTo(0, document.body.scrollHeight);"
+        )
+        time.sleep(0.5)
+        post_elems = browser.find_elements_by_tag_name("img")
 
-#Window that captures keypress and display image counter
-root = Tk()
-prompt = StringVar()
-prompt.set("Press Enter to go to next image (image 0 of " + str(len(post_elems)+1) + ")")
-label1 = Label(root, textvariable=prompt, width=50,bg="yellow")
+    images = [elem.get_attribute('src') for elem in post_elems]
+    images = list(set(images))
+    images.sort()
 
-#Reverse search each image and update the window
-k=0
-def gotonext(event):
-    global k
-    global post_elems
-    prompt.set("Press Enter to go to next image (image " + str(k+1) +" of " + str(len(post_elems)+1) + ")")
-    root.update_idletasks()
-    if k<len(post_elems):
-        post = post_elems[k]
-        k=k+1
-        url = "http://images.google.com/searchbyimage?site=search&image_url=" + post.get_attribute("src")
-        browser2.get(url)
+    return images
 
-#Execute previous function each time Enter is pressed
-label1.bind('<Return>', gotonext)
-label1.focus_set()
-label1.pack()
-root.mainloop()
+# =============================================================================
+# MAIN
+# =============================================================================
+
+
+def main():
+    """Main script"""
+    try:
+        homepage = argv[1]
+    except IndexError:
+        raise ValueError(
+            "Please pass a website when calling the script on the "
+            "command line."
+        )
+
+    # We'll set the default to Firefox. Other browsers may be used but
+    # additional software may have to be downloaded.
+    parser = webdriver.Firefox()
+
+    # Send parser to our homepage, wait 1 to ensure scripts finish.
+    parser.get(homepage)
+    time.sleep(1)
+
+    # Get all the images on the page.
+    images = _parse_images(parser)
+
+    searcher = webdriver.Firefox()
+
+    for img in images:
+        print(
+            "Now reverse searching '{img_url}'\n"
+            "{index} of {length}".format(
+                img_url=img,
+                index=images.index(img),
+                length=len(images)
+            )
+        )
+        searcher.get(REVERSE_URL + img)
+        raw_input("Results displayed. Press enter to continue")
+
+    print(
+        "\n"
+        "Last results are now displayed."
+        "{total} images searched.".format(total=len(images))
+    )
+
+# =============================================================================
+# RUNNER
+# =============================================================================
+
+if __name__ == '__main__':
+    main()
