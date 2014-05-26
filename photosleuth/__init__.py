@@ -82,7 +82,7 @@ def _parse_images(browser):
         time.sleep(0.5)
         post_elems = browser.find_elements_by_tag_name("img")
 
-    images = [elem.getattribute('src') for elem in post_elems]
+    images = [elem.get_attribute('src') for elem in post_elems]
     images = list(set(images))
     images.sort()
 
@@ -128,7 +128,11 @@ def main():
         searcher.get(REVERSE_URL + img)
         raw_input("Results displayed. Press enter to continue")
 
-    print("{total} images searched.".format(total=len(images)))
+    print(
+        "\n"
+        "Last results are now displayed."
+        "{total} images searched.".format(total=len(images))
+    )
 
 # =============================================================================
 # RUNNER
