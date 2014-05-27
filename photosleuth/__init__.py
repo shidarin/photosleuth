@@ -109,15 +109,15 @@ def main():
 
     for img in images:
         print(
-            "Now reverse searching '{img_url}'\n"
+            "\nNow reverse searching '{img_url}'\n"
             "{index} of {length}".format(
                 img_url=img,
-                index=images.index(img),
+                index=images.index(img) + 1,
                 length=len(images)
             )
         )
         searcher.get(REVERSE_URL + img)
-        raw_input("Results displayed. Press enter to continue")
+        raw_input("Results displayed. Press enter to continue ")
 
     print(
         "\n"
