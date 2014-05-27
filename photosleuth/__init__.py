@@ -15,7 +15,7 @@ http://www.reddit.com/r/photography/comments/26j0oe/for_the_programming_photogra
 
 The MIT License (MIT)
 
-Copyright (c) 2014 /u/touste & Sean Wallitsch
+Copyright (c) 2014 Baptiste Pierrat & Sean Wallitsch
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
