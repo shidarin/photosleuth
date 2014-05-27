@@ -41,25 +41,16 @@ SOFTWARE.
 # IMPORTS
 # =============================================================================
 
-# Python 3 Compatibility
-from __future__ import print_function
-
 # Standard Imports
 from selenium import webdriver
-from sys import argv
+import sys
 import time
-from Tkinter import *
-
-if sys.version_info[0] >= 3:
-    raw_input = input
 
 # =============================================================================
 # GLOBALS
 # =============================================================================
 
 REVERSE_URL = "http://images.google.com/searchbyimage?site=search&image_url="
-
-TEST_PAGE = "http://touste.tumblr.com"
 
 # =============================================================================
 # FUNCTIONS
@@ -96,7 +87,7 @@ def _parse_images(browser):
 def main():
     """Main script"""
     try:
-        homepage = argv[1]
+        homepage = sys.argv[1]
     except IndexError:
         raise ValueError(
             "Please pass a website when calling the script on the "
