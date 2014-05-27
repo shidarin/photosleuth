@@ -15,7 +15,7 @@ http://www.reddit.com/r/photography/comments/26j0oe/for_the_programming_photogra
 
 The MIT License (MIT)
 
-Copyright (c) 2014 /u/touste & Sean Wallitsch
+Copyright (c) 2014 Baptiste Pierrat & Sean Wallitsch
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -109,15 +109,15 @@ def main():
 
     for img in images:
         print(
-            "Now reverse searching '{img_url}'\n"
+            "\nNow reverse searching '{img_url}'\n"
             "{index} of {length}".format(
                 img_url=img,
-                index=images.index(img),
+                index=images.index(img) + 1,
                 length=len(images)
             )
         )
         searcher.get(REVERSE_URL + img)
-        raw_input("Results displayed. Press enter to continue")
+        raw_input("Results displayed. Press enter to continue ")
 
     print(
         "\n"
